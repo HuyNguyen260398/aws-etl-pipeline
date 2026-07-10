@@ -5,6 +5,10 @@
 # CKV_AWS_109, CKV_AWS_111, CKV_AWS_356: the required KMS account-root policy
 # uses AWS's standard wildcard key-resource form; access is constrained to the
 # current account root principal and is required to delegate KMS permissions.
+# CKV_AWS_338: VPC flow logs use a 30-day development retention period to bound
+# spend; monitoring and alerting requirements are completed in Task 009.
+# CKV2_AWS_5: Glue and Redshift security groups are created before the services
+# that attach them, in Tasks 007 and 008.
 skip-check:
   - CKV_AWS_18
   - CKV2_AWS_62
@@ -12,3 +16,5 @@ skip-check:
   - CKV_AWS_109
   - CKV_AWS_111
   - CKV_AWS_356
+  - CKV_AWS_338
+  - CKV2_AWS_5

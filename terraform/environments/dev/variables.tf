@@ -47,3 +47,51 @@ variable "common_tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "vpc_cidr" {
+  description = "IPv4 CIDR for the development VPC."
+  type        = string
+}
+
+variable "private_subnet_cidrs" {
+  description = "Exactly two private subnet CIDRs across separate Availability Zones."
+  type        = list(string)
+
+  validation {
+    condition     = length(var.private_subnet_cidrs) == 2
+    error_message = "private_subnet_cidrs must contain exactly two CIDRs."
+  }
+}
+
+variable "nat_public_subnet_cidr" {
+  description = "Reserved public subnet CIDR used only when NAT is enabled."
+  type        = string
+}
+
+variable "s3_endpoint_allowed_bucket_arns" {
+  description = "S3 bucket ARNs permitted through the S3 Gateway VPC endpoint."
+  type        = list(string)
+}
+
+variable "s3_endpoint_allowed_principal_arns" {
+  description = "IAM role ARNs permitted to use the S3 Gateway VPC endpoint."
+  type        = list(string)
+}
+
+variable "enable_nat_gateway" {
+  description = "Create a single NAT gateway only when private subnet internet egress is required."
+  type        = bool
+  default     = false
+}
+
+variable "flow_log_retention_days" {
+  description = "CloudWatch retention period for VPC flow logs."
+  type        = number
+  default     = 30
+}
+
+variable "flow_log_kms_key_id" {
+  description = "KMS key ID or ARN used to encrypt VPC flow logs."
+  type        = string
+  default     = "alias/aws/logs"
+}
