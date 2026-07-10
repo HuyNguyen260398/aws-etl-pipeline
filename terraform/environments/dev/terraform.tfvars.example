@@ -1,0 +1,8 @@
+aws_region   = "ap-southeast-1"
+project_name = "music-etl"
+environment  = "dev"
+
+common_tags = {
+  CostCenter = "development"
+  Owner      = "huy"
+}

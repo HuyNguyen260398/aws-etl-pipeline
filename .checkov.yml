@@ -1,0 +1,14 @@
+# State-bucket controls are assessed here rather than applied blindly.
+# CKV_AWS_18: CloudTrail data-event logging is implemented with the data-lake observability task.
+# CKV2_AWS_62: Terraform state must not emit application event notifications.
+# CKV_AWS_144: Cross-region replication is outside the approved single-region dev scope.
+# CKV_AWS_109, CKV_AWS_111, CKV_AWS_356: the required KMS account-root policy
+# uses AWS's standard wildcard key-resource form; access is constrained to the
+# current account root principal and is required to delegate KMS permissions.
+skip-check:
+  - CKV_AWS_18
+  - CKV2_AWS_62
+  - CKV_AWS_144
+  - CKV_AWS_109
+  - CKV_AWS_111
+  - CKV_AWS_356

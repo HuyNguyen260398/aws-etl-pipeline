@@ -1,0 +1,11 @@
+aws_region             = "ap-southeast-1"
+project_name           = "music-etl"
+environment            = "dev"
+terraform_state_bucket = "replace-with-globally-unique-state-bucket"
+terraform_lock_table   = "music-etl-dev-terraform-lock"
+state_noncurrent_version_expiration_days = 90
+
+common_tags = {
+  CostCenter = "development"
+  Owner      = "huy"
+}

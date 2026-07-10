@@ -54,6 +54,8 @@ plan/         Approved implementation plan
 
 No AWS credentials, account IDs, secrets, or environment-specific values belong in source control. Configure Terraform through input variables and CI/CD through GitHub environment secrets and variables.
 
+Supply the remote-state bucket, lock table, state key, and region as `terraform init -backend-config` arguments (or an ignored backend configuration file); Terraform backend blocks cannot reference input variables.
+
 ```bash
 cp terraform/environments/dev/terraform.tfvars.example terraform/environments/dev/terraform.tfvars
 terraform -chdir=terraform/environments/dev init
