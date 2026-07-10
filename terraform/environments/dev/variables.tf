@@ -95,3 +95,38 @@ variable "flow_log_kms_key_id" {
   type        = string
   default     = "alias/aws/logs"
 }
+
+variable "data_lake_bucket_name" {
+  description = "Globally unique S3 bucket name for raw, clean, analytics, quarantine, and Athena result prefixes."
+  type        = string
+}
+
+variable "glue_assets_bucket_name" {
+  description = "Globally unique S3 bucket name for Glue scripts and temporary assets."
+  type        = string
+}
+
+variable "kms_alias_prefix" {
+  description = "KMS alias prefix for the data lake encryption key."
+  type        = string
+}
+
+variable "raw_retention_days" {
+  type    = number
+  default = 90
+}
+
+variable "clean_retention_days" {
+  type    = number
+  default = 180
+}
+
+variable "analytics_retention_days" {
+  type    = number
+  default = 365
+}
+
+variable "glue_assets_retention_days" {
+  type    = number
+  default = 30
+}

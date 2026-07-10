@@ -22,6 +22,15 @@ enable_nat_gateway      = false
 flow_log_retention_days = 30
 flow_log_kms_key_id     = "alias/aws/logs"
 
+data_lake_bucket_name   = "replace-with-globally-unique-data-lake-bucket"
+glue_assets_bucket_name = "replace-with-globally-unique-glue-assets-bucket"
+kms_alias_prefix        = "music-etl-dev"
+
+raw_retention_days         = 90
+clean_retention_days       = 180
+analytics_retention_days   = 365
+glue_assets_retention_days = 30
+
 common_tags = {
   CostCenter = "development"
   Owner      = "huy"
