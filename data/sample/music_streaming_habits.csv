@@ -1,0 +1,3 @@
+event_id,user_id,track_id,artist_name,played_at,duration_seconds,platform,ingest_date
+0cd6213b-8751-5ebf-9181-3be4a2603eb1,user-0001,track-0001,The Sample Artists,2026-07-10T08:15:00Z,213,web,2026-07-10
+f8e4851b-1a32-5f72-9964-082f946154d3,user-0002,track-0002,Signal & Sound,2026-07-10T09:30:00Z,187,ios,2026-07-10

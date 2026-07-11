@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://music-streaming-habits.example/contracts/music-event/1.0.0",
+  "title": "Music streaming event",
+  "description": "Version 1.0.0 contract for an immutable music streaming event.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "user_id",
+    "track_id",
+    "artist_name",
+    "played_at",
+    "duration_seconds",
+    "platform",
+    "ingest_date"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "minLength": 1
+    },
+    "user_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "track_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artist_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "played_at": {
+      "type": "string",
+      "format": "date-time",
+      "minLength": 1
+    },
+    "duration_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "platform": {
+      "type": "string",
+      "enum": ["android", "ios", "web", "desktop"]
+    },
+    "ingest_date": {
+      "type": "string",
+      "format": "date",
+      "minLength": 1
+    }
+  }
+}
