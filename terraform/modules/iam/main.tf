@@ -101,6 +101,14 @@ locals {
     redshift         = aws_iam_role.redshift.id
     analytics_reader = aws_iam_role.analytics_reader.id
   }
+
+  data_lake_kms_actions = {
+    lambda           = ["kms:Decrypt", "kms:DescribeKey"]
+    firehose         = ["kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey"]
+    glue             = ["kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey", "kms:DescribeKey"]
+    redshift         = ["kms:Decrypt", "kms:DescribeKey"]
+    analytics_reader = ["kms:Decrypt", "kms:DescribeKey"]
+  }
 }
 
 data "aws_iam_policy_document" "data_lake_access" {
@@ -135,7 +143,7 @@ data "aws_iam_policy_document" "data_lake_access" {
 
   statement {
     effect    = "Allow"
-    actions   = ["kms:Decrypt", "kms:DescribeKey"]
+    actions   = local.data_lake_kms_actions[each.key]
     resources = [var.data_lake_kms_key_arn]
   }
 }

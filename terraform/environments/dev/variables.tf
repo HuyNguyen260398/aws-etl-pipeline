@@ -146,4 +146,38 @@ variable "analytics_reader_trusted_principal_arn" {
   type        = string
 }
 
-variable "glue_job_name" { type = string }
+variable "glue_worker_type" {
+  description = "Glue worker type for both ETL jobs."
+  type        = string
+  default     = "G.1X"
+}
+
+variable "glue_number_of_workers" {
+  description = "Minimum number of Glue workers for the development jobs."
+  type        = number
+  default     = 2
+}
+
+variable "glue_timeout_minutes" {
+  description = "Maximum Glue job runtime in minutes."
+  type        = number
+  default     = 30
+}
+
+variable "glue_max_retries" {
+  description = "Number of Glue job retries after a failed run."
+  type        = number
+  default     = 1
+}
+
+variable "glue_log_retention_days" {
+  description = "CloudWatch retention period for Glue job logs."
+  type        = number
+  default     = 30
+}
+
+variable "glue_version" {
+  description = "AWS Glue runtime version used by the ETL jobs."
+  type        = string
+  default     = "4.0"
+}

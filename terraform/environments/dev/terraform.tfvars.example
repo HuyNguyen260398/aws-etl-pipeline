@@ -34,7 +34,12 @@ glue_assets_retention_days = 30
 github_oidc_provider_arn = "arn:aws:iam::replace-with-account-id:oidc-provider/token.actions.githubusercontent.com"
 github_repository        = "replace-with-owner/repository"
 analytics_reader_trusted_principal_arn = "arn:aws:iam::replace-with-account-id:role/replace-with-analytics-reader-principal"
-glue_job_name = "replace-with-raw-to-clean-glue-job"
+glue_worker_type = "G.1X"
+glue_number_of_workers = 2
+glue_timeout_minutes = 30
+glue_max_retries = 1
+glue_log_retention_days = 30
+glue_version = "4.0"
 
 common_tags = {
   CostCenter = "development"

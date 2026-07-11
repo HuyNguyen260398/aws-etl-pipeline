@@ -98,8 +98,30 @@ module "streaming" {
   data_lake_bucket_arn = module.data_lake.data_lake_bucket_arn
   lambda_role_arn      = module.iam.lambda_role_arn
   firehose_role_arn    = module.iam.firehose_role_arn
-  glue_job_name        = var.glue_job_name
+  glue_job_name        = module.glue.raw_to_clean_job_name
   lambda_source_dir    = "${path.root}/../../../src/lambda/validator"
+}
+
+module "glue" {
+  source = "../../modules/glue"
+
+  name_prefix                    = module.common.name_prefix
+  tags                           = module.common.tags
+  glue_role_arn                  = module.iam.glue_role_arn
+  glue_role_name                 = element(reverse(split("/", module.iam.glue_role_arn)), 0)
+  data_lake_bucket_name          = module.data_lake.data_lake_bucket_name
+  data_lake_kms_key_arn          = module.data_lake.data_lake_kms_key_arn
+  glue_assets_bucket_name        = module.data_lake.glue_assets_bucket_name
+  raw_to_clean_source_path       = "${path.root}/../../../src/glue/jobs/raw_to_clean.py"
+  clean_to_analytics_source_path = "${path.root}/../../../src/glue/jobs/clean_to_analytics.py"
+  quality_library_source_dir     = "${path.root}/../../../src"
+  worker_type                    = var.glue_worker_type
+  number_of_workers              = var.glue_number_of_workers
+  timeout_minutes                = var.glue_timeout_minutes
+  max_retries                    = var.glue_max_retries
+  log_retention_days             = var.glue_log_retention_days
+  glue_version                   = var.glue_version
+  catalog_database_names         = ["music_raw", "music_clean", "music_analytics"]
 }
 
 resource "aws_s3_bucket_notification" "raw_manifest" {
