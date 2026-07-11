@@ -106,6 +106,7 @@ module "glue" {
   source = "../../modules/glue"
 
   name_prefix                    = module.common.name_prefix
+  aws_region                     = var.aws_region
   tags                           = module.common.tags
   glue_role_arn                  = module.iam.glue_role_arn
   glue_role_name                 = element(reverse(split("/", module.iam.glue_role_arn)), 0)
@@ -122,6 +123,21 @@ module "glue" {
   log_retention_days             = var.glue_log_retention_days
   glue_version                   = var.glue_version
   catalog_database_names         = ["music_raw", "music_clean", "music_analytics"]
+}
+
+module "analytics" {
+  source = "../../modules/analytics"
+
+  name_prefix                           = module.common.name_prefix
+  tags                                  = module.common.tags
+  data_lake_bucket_name                 = module.data_lake.data_lake_bucket_name
+  data_lake_kms_key_arn                 = module.data_lake.data_lake_kms_key_arn
+  athena_bytes_scanned_cutoff_per_query = var.athena_bytes_scanned_cutoff_per_query
+  redshift_base_capacity                = var.redshift_base_capacity
+  redshift_admin_secret_arn             = var.redshift_admin_secret_arn
+  redshift_role_arn                     = module.iam.redshift_role_arn
+  security_group_ids                    = [module.network.redshift_security_group_id]
+  subnet_ids                            = module.network.private_subnet_ids
 }
 
 resource "aws_s3_bucket_notification" "raw_manifest" {

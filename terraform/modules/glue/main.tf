@@ -53,17 +53,41 @@ resource "aws_glue_security_configuration" "this" {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
+locals {
+  glue_catalog_arn = "arn:aws:glue:${var.aws_region}:${data.aws_caller_identity.current.account_id}:catalog"
+  glue_database_arns = [
+    for database in var.catalog_database_names : "arn:aws:glue:${var.aws_region}:${data.aws_caller_identity.current.account_id}:database/${database}"
+  ]
+  glue_table_arns = [
+    for database in var.catalog_database_names : "arn:aws:glue:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/${database}/*"
+  ]
+}
+
 resource "aws_iam_role_policy" "catalog_access" {
   name = "${var.name_prefix}-glue-catalog"
   role = var.glue_role_name
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect   = "Allow"
-      Action   = ["glue:GetDatabase", "glue:GetDatabases", "glue:GetTable", "glue:GetTables", "glue:GetPartitions", "glue:BatchCreatePartition", "glue:UpdateTable"]
-      Resource = "*"
-    }]
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["glue:GetDatabases"]
+        Resource = local.glue_catalog_arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["glue:GetDatabase"]
+        Resource = local.glue_database_arns
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["glue:GetTable", "glue:GetTables", "glue:GetPartitions", "glue:BatchCreatePartition", "glue:UpdateTable"]
+        Resource = local.glue_table_arns
+      },
+    ]
   })
 }
 

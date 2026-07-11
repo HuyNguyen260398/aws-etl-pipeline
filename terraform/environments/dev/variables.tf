@@ -181,3 +181,21 @@ variable "glue_version" {
   type        = string
   default     = "4.0"
 }
+
+variable "athena_bytes_scanned_cutoff_per_query" {
+  description = "Athena workgroup maximum bytes scanned per query."
+  type        = number
+  default     = 1073741824
+}
+
+variable "redshift_base_capacity" {
+  description = "Redshift Serverless base capacity in RPUs."
+  type        = number
+  default     = 8
+}
+
+variable "redshift_admin_secret_arn" {
+  description = "Secrets Manager ARN containing Redshift admin username and password JSON."
+  type        = string
+  sensitive   = true
+}

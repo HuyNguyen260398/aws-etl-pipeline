@@ -1,4 +1,5 @@
 variable "name_prefix" { type = string }
+variable "aws_region" { type = string }
 variable "tags" { type = map(string) }
 variable "glue_role_arn" { type = string }
 variable "glue_role_name" { type = string }
