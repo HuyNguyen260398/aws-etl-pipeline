@@ -4,6 +4,15 @@
 
 Deploy the dev stack first. Export the runner’s required values: `AWS_REGION`, `DATA_LAKE_BUCKET`, `ATHENA_WORKGROUP`, `REDSHIFT_WORKGROUP`, and `TEST_ROLE_ARN`. The integration tests additionally require `KINESIS_STREAM_NAME`, `GLUE_RAW_TO_CLEAN_JOB_NAME`, and `REDSHIFT_SECRET_ARN`.
 
+## Step 1 deployment record
+
+- Deployment completed: `2026-07-11T23:47:26Z`
+- Terraform source baseline: `e1485459c68faa18aedc19459ef559b7b7c19ec6`
+- AWS account and region: `010382427026`, `ap-southeast-1`
+- Final reconciliation: `terraform plan -detailed-exitcode` returned `No changes.`
+- Apply result: the final reconciliation added 18 resources, updated the data-lake KMS policy, and destroyed no resources.
+- Remediation recorded in this checkpoint: single-owner Glue-to-Redshift egress, scoped Firehose Kinesis read access, scoped Lambda DLQ send access, Lake Formation catalog-admin bootstrap, and scoped CloudWatch Logs KMS access.
+
 ## Functional evidence
 
 Record the acceptance run timestamp, Git commit, raw object keys, Glue run IDs, clean/analytics Parquet keys, Athena query execution IDs/results, and Redshift Data API statement IDs/results. Capture the invalid-record quarantine key and the Kinesis sequence number.

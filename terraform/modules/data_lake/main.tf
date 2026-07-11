@@ -13,6 +13,31 @@ data "aws_iam_policy_document" "kms" {
     actions   = ["kms:*"]
     resources = ["*"]
   }
+
+  statement {
+    sid    = "AllowCloudWatchLogsUseOfKey"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["logs.ap-southeast-1.amazonaws.com"]
+    }
+
+    actions = [
+      "kms:Encrypt*",
+      "kms:Decrypt*",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:Describe*",
+    ]
+    resources = ["*"]
+
+    condition {
+      test     = "ArnLike"
+      variable = "kms:EncryptionContext:aws:logs:arn"
+      values   = ["arn:aws:logs:ap-southeast-1:${data.aws_caller_identity.current.account_id}:log-group:*"]
+    }
+  }
 }
 
 data "aws_iam_policy_document" "data_lake_tls" {

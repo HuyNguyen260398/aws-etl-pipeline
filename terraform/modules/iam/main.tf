@@ -7,6 +7,8 @@ locals {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
 data "aws_iam_policy_document" "service_assume_role" {
   for_each = local.service_principals
 
@@ -109,6 +111,9 @@ locals {
     redshift         = ["kms:Decrypt", "kms:DescribeKey"]
     analytics_reader = ["kms:Decrypt", "kms:DescribeKey"]
   }
+
+  firehose_kinesis_stream_arn = "arn:aws:kinesis:${var.aws_region}:${data.aws_caller_identity.current.account_id}:stream/${var.name_prefix}-events"
+  lambda_dlq_arn              = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.name_prefix}-manifest-dlq"
 }
 
 data "aws_iam_policy_document" "data_lake_access" {
@@ -145,6 +150,26 @@ data "aws_iam_policy_document" "data_lake_access" {
     effect    = "Allow"
     actions   = local.data_lake_kms_actions[each.key]
     resources = [var.data_lake_kms_key_arn]
+  }
+
+  dynamic "statement" {
+    for_each = each.key == "firehose" ? [true] : []
+
+    content {
+      effect    = "Allow"
+      actions   = ["kinesis:DescribeStream"]
+      resources = [local.firehose_kinesis_stream_arn]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = each.key == "lambda" ? [true] : []
+
+    content {
+      effect    = "Allow"
+      actions   = ["sqs:SendMessage"]
+      resources = [local.lambda_dlq_arn]
+    }
   }
 }
 

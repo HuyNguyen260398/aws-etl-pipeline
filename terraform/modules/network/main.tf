@@ -196,7 +196,14 @@ resource "aws_security_group" "glue" {
   name        = "${var.name_prefix}-glue"
   description = "Controls Glue job network access."
   vpc_id      = aws_vpc.this.id
-  egress      = []
+
+  egress {
+    description     = "Allow Glue jobs to connect to Redshift Serverless."
+    from_port       = var.redshift_port
+    to_port         = var.redshift_port
+    protocol        = "tcp"
+    security_groups = [aws_security_group.redshift.id]
+  }
 
   tags = merge(var.tags, { Name = "${var.name_prefix}-glue" })
 }
@@ -210,13 +217,12 @@ resource "aws_security_group" "redshift" {
   tags = merge(var.tags, { Name = "${var.name_prefix}-redshift" })
 }
 
-resource "aws_vpc_security_group_egress_rule" "glue_to_redshift" {
-  security_group_id            = aws_security_group.glue.id
-  referenced_security_group_id = aws_security_group.redshift.id
-  from_port                    = var.redshift_port
-  to_port                      = var.redshift_port
-  ip_protocol                  = "tcp"
-  description                  = "Allow Glue jobs to connect to Redshift Serverless."
+removed {
+  from = aws_vpc_security_group_egress_rule.glue_to_redshift
+
+  lifecycle {
+    destroy = false
+  }
 }
 
 resource "aws_vpc_security_group_ingress_rule" "redshift_from_glue" {
