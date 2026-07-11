@@ -67,3 +67,25 @@ module "data_lake" {
   glue_assets_retention_days = var.glue_assets_retention_days
   tags                       = module.common.tags
 }
+
+module "iam" {
+  source = "../../modules/iam"
+
+  name_prefix                            = module.common.name_prefix
+  tags                                   = module.common.tags
+  github_oidc_provider_arn               = var.github_oidc_provider_arn
+  github_repository                      = var.github_repository
+  analytics_reader_trusted_principal_arn = var.analytics_reader_trusted_principal_arn
+  data_lake_bucket_arn                   = module.data_lake.data_lake_bucket_arn
+  data_lake_kms_key_arn                  = module.data_lake.data_lake_kms_key_arn
+}
+
+module "governance" {
+  source = "../../modules/governance"
+
+  catalog_name_prefix       = var.project_name
+  data_lake_bucket_arn      = module.data_lake.data_lake_bucket_arn
+  data_lake_bucket_name     = module.data_lake.data_lake_bucket_name
+  glue_role_arn             = module.iam.glue_role_arn
+  analytics_reader_role_arn = module.iam.analytics_reader_role_arn
+}

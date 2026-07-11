@@ -130,3 +130,18 @@ variable "glue_assets_retention_days" {
   type    = number
   default = 30
 }
+
+variable "github_oidc_provider_arn" {
+  description = "Existing GitHub Actions OIDC provider ARN in this AWS account."
+  type        = string
+}
+
+variable "github_repository" {
+  description = "GitHub owner/repository allowed to assume the deployment role."
+  type        = string
+}
+
+variable "analytics_reader_trusted_principal_arn" {
+  description = "Principal permitted to assume the analytics reader role."
+  type        = string
+}
