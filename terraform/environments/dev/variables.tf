@@ -145,3 +145,5 @@ variable "analytics_reader_trusted_principal_arn" {
   description = "Principal permitted to assume the analytics reader role."
   type        = string
 }
+
+variable "glue_job_name" { type = string }

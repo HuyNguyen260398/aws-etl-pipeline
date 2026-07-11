@@ -89,3 +89,36 @@ module "governance" {
   glue_role_arn             = module.iam.glue_role_arn
   analytics_reader_role_arn = module.iam.analytics_reader_role_arn
 }
+
+module "streaming" {
+  source               = "../../modules/streaming"
+  name_prefix          = module.common.name_prefix
+  tags                 = module.common.tags
+  kms_key_arn          = module.data_lake.data_lake_kms_key_arn
+  data_lake_bucket_arn = module.data_lake.data_lake_bucket_arn
+  lambda_role_arn      = module.iam.lambda_role_arn
+  firehose_role_arn    = module.iam.firehose_role_arn
+  glue_job_name        = var.glue_job_name
+  lambda_source_dir    = "${path.root}/../../../src/lambda/validator"
+}
+
+resource "aws_s3_bucket_notification" "raw_manifest" {
+  bucket = module.data_lake.data_lake_bucket_name
+
+  lambda_function {
+    lambda_function_arn = module.streaming.validator_lambda_arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "raw/"
+    filter_suffix       = "manifest.json"
+  }
+
+  depends_on = [aws_lambda_permission.s3_manifest]
+}
+
+resource "aws_lambda_permission" "s3_manifest" {
+  statement_id  = "AllowDataLakeManifestInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = module.streaming.validator_lambda_arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = module.data_lake.data_lake_bucket_arn
+}

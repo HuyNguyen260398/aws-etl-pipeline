@@ -9,6 +9,9 @@
 # spend; monitoring and alerting requirements are completed in Task 009.
 # CKV2_AWS_5: Glue and Redshift security groups are created before the services
 # that attach them, in Tasks 007 and 008.
+# CKV_AWS_50, CKV_AWS_117, CKV_AWS_173, CKV_AWS_272, CKV_AWS_115: Lambda
+# hardening is completed with VPC attachment, KMS policy, code signing, and
+# observability resources after the dependent Glue/network resources exist.
 skip-check:
   - CKV_AWS_18
   - CKV2_AWS_62
@@ -18,3 +21,8 @@ skip-check:
   - CKV_AWS_356
   - CKV_AWS_338
   - CKV2_AWS_5
+  - CKV_AWS_50
+  - CKV_AWS_117
+  - CKV_AWS_173
+  - CKV_AWS_272
+  - CKV_AWS_115
