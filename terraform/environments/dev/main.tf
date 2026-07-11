@@ -159,6 +159,23 @@ module "observability" {
   athena_workgroup_name         = module.analytics.athena_workgroup_name
 }
 
+module "quicksight" {
+  source = "../../modules/quicksight"
+
+  name_prefix                        = module.common.name_prefix
+  aws_region                         = var.aws_region
+  quicksight_enabled                 = var.quicksight_enabled
+  quicksight_principal_arn           = var.quicksight_principal_arn
+  quicksight_vpc_connection_role_arn = var.quicksight_vpc_connection_role_arn
+  quicksight_refresh_schedule        = var.quicksight_refresh_schedule
+  redshift_workgroup_name            = module.analytics.redshift_workgroup_name
+  redshift_database_name             = "music_analytics"
+  redshift_admin_secret_arn          = var.redshift_admin_secret_arn
+  private_subnet_ids                 = module.network.private_subnet_ids
+  security_group_ids                 = [module.network.redshift_security_group_id]
+  tags                               = module.common.tags
+}
+
 resource "aws_s3_bucket_notification" "raw_manifest" {
   bucket = module.data_lake.data_lake_bucket_name
 

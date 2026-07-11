@@ -206,3 +206,29 @@ variable "alarm_sns_topic_arn" {
   default     = null
   nullable    = true
 }
+
+variable "quicksight_enabled" {
+  description = "Create QuickSight resources only after the account is subscribed."
+  type        = bool
+  default     = false
+}
+
+variable "quicksight_principal_arn" {
+  description = "QuickSight principal ARN granted access to the dashboard dataset."
+  type        = string
+  default     = null
+  nullable    = true
+}
+
+variable "quicksight_vpc_connection_role_arn" {
+  description = "IAM role ARN for the QuickSight VPC connection when QuickSight is enabled."
+  type        = string
+  default     = null
+  nullable    = true
+}
+
+variable "quicksight_refresh_schedule" {
+  description = "QuickSight SPICE refresh interval after successful Redshift merge."
+  type        = string
+  default     = "DAILY"
+}
