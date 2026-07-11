@@ -43,6 +43,7 @@ glue_version = "4.0"
 athena_bytes_scanned_cutoff_per_query = 1073741824
 redshift_base_capacity = 8
 redshift_admin_secret_arn = "arn:aws:secretsmanager:ap-southeast-1:replace-with-account-id:secret:replace-with-redshift-admin-secret"
+alarm_sns_topic_arn = null
 
 common_tags = {
   CostCenter = "development"

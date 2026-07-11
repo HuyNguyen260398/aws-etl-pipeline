@@ -29,13 +29,10 @@ variable "max_retries" {
   default = 1
 }
 
-variable "log_retention_days" {
-  type    = number
-  default = 30
-}
-
 variable "glue_version" {
   type    = string
   default = "4.0"
 }
 variable "catalog_database_names" { type = list(string) }
+variable "raw_to_clean_log_group_name" { type = string }
+variable "clean_to_analytics_log_group_name" { type = string }

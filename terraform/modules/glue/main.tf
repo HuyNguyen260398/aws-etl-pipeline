@@ -25,13 +25,6 @@ resource "aws_s3_object" "quality_library" {
   etag   = data.archive_file.quality_library.output_md5
 }
 
-resource "aws_cloudwatch_log_group" "jobs" {
-  name              = "/aws-glue/jobs/${var.name_prefix}"
-  retention_in_days = var.log_retention_days
-  kms_key_id        = var.data_lake_kms_key_arn
-  tags              = var.tags
-}
-
 resource "aws_glue_security_configuration" "this" {
   name = "${var.name_prefix}-glue-security"
 
@@ -96,7 +89,6 @@ locals {
     "--enable-job-bookmark"              = "job-bookmark-enable"
     "--enable-glue-datacatalog"          = "true"
     "--enable-continuous-cloudwatch-log" = "true"
-    "--continuous-log-logGroup"          = aws_cloudwatch_log_group.jobs.name
     "--TempDir"                          = "s3://${var.glue_assets_bucket_name}/glue-assets/temporary/"
     "--extra-py-files"                   = "s3://${var.glue_assets_bucket_name}/${aws_s3_object.quality_library.key}"
     "--catalog-databases"                = join(",", var.catalog_database_names)
@@ -119,12 +111,13 @@ resource "aws_glue_job" "raw_to_clean" {
     script_location = "s3://${var.glue_assets_bucket_name}/${aws_s3_object.raw_to_clean_script.key}"
   }
   default_arguments = merge(local.common_default_arguments, {
-    "--raw-prefix"        = "raw/"
-    "--data-lake-bucket"  = var.data_lake_bucket_name
-    "--clean-prefix"      = "s3://${var.data_lake_bucket_name}/clean/"
-    "--quarantine-prefix" = "s3://${var.data_lake_bucket_name}/quarantine/"
-    "--run-id"            = "scheduled"
-    "--ingest-date"       = "1970-01-01"
+    "--continuous-log-logGroup" = var.raw_to_clean_log_group_name
+    "--raw-prefix"              = "raw/"
+    "--data-lake-bucket"        = var.data_lake_bucket_name
+    "--clean-prefix"            = "s3://${var.data_lake_bucket_name}/clean/"
+    "--quarantine-prefix"       = "s3://${var.data_lake_bucket_name}/quarantine/"
+    "--run-id"                  = "scheduled"
+    "--ingest-date"             = "1970-01-01"
   })
   execution_property { max_concurrent_runs = 1 }
   tags = var.tags
@@ -146,8 +139,9 @@ resource "aws_glue_job" "clean_to_analytics" {
     script_location = "s3://${var.glue_assets_bucket_name}/${aws_s3_object.clean_to_analytics_script.key}"
   }
   default_arguments = merge(local.common_default_arguments, {
-    "--clean-prefix"     = "s3://${var.data_lake_bucket_name}/clean/"
-    "--analytics-prefix" = "s3://${var.data_lake_bucket_name}/analytics/"
+    "--continuous-log-logGroup" = var.clean_to_analytics_log_group_name
+    "--clean-prefix"            = "s3://${var.data_lake_bucket_name}/clean/"
+    "--analytics-prefix"        = "s3://${var.data_lake_bucket_name}/analytics/"
   })
   execution_property { max_concurrent_runs = 1 }
   tags = var.tags

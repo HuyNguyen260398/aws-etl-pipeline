@@ -199,3 +199,10 @@ variable "redshift_admin_secret_arn" {
   type        = string
   sensitive   = true
 }
+
+variable "alarm_sns_topic_arn" {
+  description = "Optional SNS topic ARN for pipeline alarm notifications."
+  type        = string
+  default     = null
+  nullable    = true
+}
