@@ -117,6 +117,7 @@ module "glue" {
   raw_to_clean_source_path          = "${path.root}/../../../src/glue/jobs/raw_to_clean.py"
   clean_to_analytics_source_path    = "${path.root}/../../../src/glue/jobs/clean_to_analytics.py"
   quality_library_source_dir        = "${path.root}/../../../src"
+  orchestrator_source_dir           = "${path.root}/../../../src/lambda/orchestrator"
   worker_type                       = var.glue_worker_type
   number_of_workers                 = var.glue_number_of_workers
   timeout_minutes                   = var.glue_timeout_minutes

@@ -165,24 +165,95 @@ resource "aws_glue_job" "clean_to_analytics" {
   tags = var.tags
 }
 
-# Chain clean-to-analytics after every successful raw-to-clean run so the
-# analytics zone is populated without manual orchestration.
-resource "aws_glue_trigger" "clean_after_raw" {
-  name              = "${var.name_prefix}-clean-after-raw"
-  type              = "CONDITIONAL"
-  start_on_creation = true
+# Chain clean-to-analytics after raw-to-clean succeeds. Standalone Glue
+# conditional triggers do not fire for jobs started via StartJobRun (the
+# manifest Lambda), so an EventBridge rule invokes an orchestrator Lambda
+# that starts clean-to-analytics.
+data "archive_file" "orchestrator" {
+  type        = "zip"
+  source_dir  = var.orchestrator_source_dir
+  output_path = "${path.module}/orchestrator.zip"
+}
 
-  actions {
-    job_name = aws_glue_job.clean_to_analytics.name
-  }
-
-  predicate {
-    conditions {
-      job_name         = aws_glue_job.raw_to_clean.name
-      state            = "SUCCEEDED"
-      logical_operator = "EQUALS"
-    }
-  }
-
+resource "aws_iam_role" "orchestrator" {
+  name = "${var.name_prefix}-glue-orchestrator"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "lambda.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
   tags = var.tags
+}
+
+resource "aws_iam_role_policy" "orchestrator" {
+  name = "${var.name_prefix}-glue-orchestrator"
+  role = aws_iam_role.orchestrator.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["glue:StartJobRun"]
+        Resource = aws_glue_job.clean_to_analytics.arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
+        Resource = "${aws_cloudwatch_log_group.orchestrator.arn}:*"
+      },
+    ]
+  })
+}
+
+resource "aws_cloudwatch_log_group" "orchestrator" {
+  name              = "/aws/lambda/${var.name_prefix}-glue-orchestrator"
+  retention_in_days = 30
+  tags              = var.tags
+}
+
+resource "aws_lambda_function" "orchestrator" {
+  function_name    = "${var.name_prefix}-glue-orchestrator"
+  role             = aws_iam_role.orchestrator.arn
+  handler          = "app.lambda_handler"
+  runtime          = "python3.12"
+  filename         = data.archive_file.orchestrator.output_path
+  source_code_hash = data.archive_file.orchestrator.output_base64sha256
+  timeout          = 30
+
+  environment {
+    variables = { GLUE_JOB_NAME = aws_glue_job.clean_to_analytics.name }
+  }
+
+  depends_on = [aws_cloudwatch_log_group.orchestrator]
+  tags       = var.tags
+}
+
+resource "aws_cloudwatch_event_rule" "raw_to_clean_succeeded" {
+  name        = "${var.name_prefix}-raw-to-clean-succeeded"
+  description = "Start clean-to-analytics when raw-to-clean succeeds."
+  event_pattern = jsonencode({
+    source      = ["aws.glue"]
+    detail-type = ["Glue Job State Change"]
+    detail = {
+      jobName = [aws_glue_job.raw_to_clean.name]
+      state   = ["SUCCEEDED"]
+    }
+  })
+  tags = var.tags
+}
+
+resource "aws_cloudwatch_event_target" "start_clean_to_analytics" {
+  rule = aws_cloudwatch_event_rule.raw_to_clean_succeeded.name
+  arn  = aws_lambda_function.orchestrator.arn
+}
+
+resource "aws_lambda_permission" "allow_eventbridge" {
+  statement_id  = "AllowEventBridgeInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.orchestrator.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.raw_to_clean_succeeded.arn
 }

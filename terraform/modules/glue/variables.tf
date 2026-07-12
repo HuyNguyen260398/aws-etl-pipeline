@@ -9,6 +9,7 @@ variable "glue_assets_bucket_name" { type = string }
 variable "raw_to_clean_source_path" { type = string }
 variable "clean_to_analytics_source_path" { type = string }
 variable "quality_library_source_dir" { type = string }
+variable "orchestrator_source_dir" { type = string }
 variable "worker_type" {
   type    = string
   default = "G.1X"
