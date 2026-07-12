@@ -10,7 +10,7 @@ class GovernanceModuleTests(unittest.TestCase):
     def test_iam_module_defines_separate_service_roles(self):
         configuration = (IAM_MODULE / "main.tf").read_text()
 
-        for role in ["lambda", "firehose", "glue", "redshift", "github_oidc", "analytics_reader"]:
+        for role in ["lambda", "firehose", "glue", "redshift", "analytics_reader"]:
             self.assertIn(f'resource "aws_iam_role" "{role}"', configuration)
 
     def test_governance_module_defines_lake_formation_databases_and_tags(self):

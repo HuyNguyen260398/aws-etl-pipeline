@@ -23,30 +23,6 @@ data "aws_iam_policy_document" "service_assume_role" {
   }
 }
 
-data "aws_iam_policy_document" "github_oidc_assume_role" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRoleWithWebIdentity"]
-
-    principals {
-      type        = "Federated"
-      identifiers = [var.github_oidc_provider_arn]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "token.actions.githubusercontent.com:aud"
-      values   = ["sts.amazonaws.com"]
-    }
-
-    condition {
-      test     = "StringLike"
-      variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repository}:ref:refs/heads/main"]
-    }
-  }
-}
-
 data "aws_iam_policy_document" "analytics_reader_assume_role" {
   statement {
     effect  = "Allow"
@@ -80,12 +56,6 @@ resource "aws_iam_role" "glue" {
 resource "aws_iam_role" "redshift" {
   name               = "${var.name_prefix}-redshift"
   assume_role_policy = data.aws_iam_policy_document.service_assume_role["redshift"].json
-  tags               = var.tags
-}
-
-resource "aws_iam_role" "github_oidc" {
-  name               = "${var.name_prefix}-github-oidc"
-  assume_role_policy = data.aws_iam_policy_document.github_oidc_assume_role.json
   tags               = var.tags
 }
 

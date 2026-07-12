@@ -31,8 +31,6 @@ clean_retention_days       = 180
 analytics_retention_days   = 365
 glue_assets_retention_days = 30
 
-github_oidc_provider_arn = "arn:aws:iam::replace-with-account-id:oidc-provider/token.actions.githubusercontent.com"
-github_repository        = "replace-with-owner/repository"
 analytics_reader_trusted_principal_arn = "arn:aws:iam::replace-with-account-id:role/replace-with-analytics-reader-principal"
 glue_worker_type = "G.1X"
 glue_number_of_workers = 2

@@ -74,8 +74,6 @@ module "iam" {
   name_prefix                            = module.common.name_prefix
   tags                                   = module.common.tags
   aws_region                             = var.aws_region
-  github_oidc_provider_arn               = var.github_oidc_provider_arn
-  github_repository                      = var.github_repository
   analytics_reader_trusted_principal_arn = var.analytics_reader_trusted_principal_arn
   data_lake_bucket_arn                   = module.data_lake.data_lake_bucket_arn
   data_lake_kms_key_arn                  = module.data_lake.data_lake_kms_key_arn
