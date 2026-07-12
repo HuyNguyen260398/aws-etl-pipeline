@@ -23,6 +23,8 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+# Terraform-built Lambda/Glue deployment packages (archive_file outputs)
+terraform/modules/**/*.zip
 
 # Python
 __pycache__/
