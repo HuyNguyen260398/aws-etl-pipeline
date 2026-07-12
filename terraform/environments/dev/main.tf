@@ -198,3 +198,34 @@ resource "aws_lambda_permission" "s3_manifest" {
   principal     = "s3.amazonaws.com"
   source_arn    = module.data_lake.data_lake_bucket_arn
 }
+
+# Seed the analytics query schema that is not managed as Terraform resources
+# (Athena external tables, Redshift schema and views) so a rebuilt stack is
+# query-ready without a manual step. Re-runs when the SQL, the seed script, or
+# the Redshift workgroup change.
+resource "terraform_data" "seed_schema" {
+  triggers_replace = [
+    filemd5("${path.root}/../../../sql/athena/create_tables.sql"),
+    filemd5("${path.root}/../../../sql/redshift/001_schema.sql"),
+    filemd5("${path.root}/../../../sql/redshift/003_dashboard_views.sql"),
+    filemd5("${path.root}/../../../scripts/seed_schema.sh"),
+    module.analytics.redshift_workgroup_id,
+  ]
+
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+    command     = "${path.root}/../../../scripts/seed_schema.sh"
+    environment = {
+      AWS_REGION          = var.aws_region
+      DATA_LAKE_BUCKET    = module.data_lake.data_lake_bucket_name
+      ATHENA_WORKGROUP    = module.analytics.athena_workgroup_name
+      ATHENA_DATABASE     = module.governance.analytics_database_name
+      REDSHIFT_WORKGROUP  = module.analytics.redshift_workgroup_name
+      REDSHIFT_DATABASE   = "music_analytics"
+      REDSHIFT_SECRET_ARN = var.redshift_admin_secret_arn
+      SQL_DIR             = "${path.root}/../../../sql"
+    }
+  }
+
+  depends_on = [module.analytics, module.governance, module.glue]
+}
