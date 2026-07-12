@@ -63,7 +63,7 @@ terraform -chdir=terraform/environments/dev plan
 ```
 
 > [!IMPORTANT]
-> The Terraform implementation is planned but has not been created yet. Follow the ordered tasks in the implementation plan before running deployment commands.
+> The Terraform modules and the `dev` composition are implemented. Review a Terraform plan and confirm its cost and security implications before applying, and supply account-specific values through an ignored `terraform.tfvars` or CI variables.
 
 ## Development principles
 
