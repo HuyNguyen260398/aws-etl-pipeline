@@ -56,6 +56,7 @@ locals {
   glue_table_arns = [
     for database in var.catalog_database_names : "arn:aws:glue:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/${database}/*"
   ]
+  glue_log_group_arn = "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws-glue/*"
 }
 
 resource "aws_iam_role_policy" "catalog_access" {
@@ -79,6 +80,21 @@ resource "aws_iam_role_policy" "catalog_access" {
         Effect   = "Allow"
         Action   = ["glue:GetTable", "glue:GetTables", "glue:GetPartitions", "glue:BatchCreatePartition", "glue:UpdateTable"]
         Resource = local.glue_table_arns
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["logs:CreateLogGroup"]
+        Resource = local.glue_log_group_arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["s3:GetObject"]
+        Resource = "arn:aws:s3:::${var.glue_assets_bucket_name}/glue-assets/*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["logs:AssociateKmsKey", "logs:CreateLogStream", "logs:DescribeLogStreams", "logs:PutLogEvents"]
+        Resource = "${local.glue_log_group_arn}:*"
       },
     ]
   })

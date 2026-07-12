@@ -114,6 +114,8 @@ locals {
 
   firehose_kinesis_stream_arn = "arn:aws:kinesis:${var.aws_region}:${data.aws_caller_identity.current.account_id}:stream/${var.name_prefix}-events"
   lambda_dlq_arn              = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.name_prefix}-manifest-dlq"
+  lambda_glue_job_arn         = "arn:aws:glue:${var.aws_region}:${data.aws_caller_identity.current.account_id}:job/${var.name_prefix}-raw-to-clean"
+  lambda_log_group_arn        = "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.name_prefix}-manifest-validator"
 }
 
 data "aws_iam_policy_document" "data_lake_access" {
@@ -169,6 +171,45 @@ data "aws_iam_policy_document" "data_lake_access" {
       effect    = "Allow"
       actions   = ["sqs:SendMessage"]
       resources = [local.lambda_dlq_arn]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = each.key == "lambda" ? [true] : []
+
+    content {
+      effect    = "Allow"
+      actions   = ["glue:StartJobRun"]
+      resources = [local.lambda_glue_job_arn]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = each.key == "lambda" ? [true] : []
+
+    content {
+      effect = "Allow"
+      actions = [
+        "logs:CreateLogStream",
+        "logs:DescribeLogStreams",
+        "logs:PutLogEvents",
+      ]
+      resources = ["${local.lambda_log_group_arn}:*"]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = each.key == "glue" ? [true] : []
+
+    content {
+      effect  = "Allow"
+      actions = ["s3:PutObject", "s3:DeleteObject"]
+      # The EMR filesystem used by Glue writes top-level directory markers
+      # (e.g. clean_$folder$) that do not match the "<zone>/*" object patterns.
+      resources = [
+        for zone in ["clean", "analytics", "quarantine"] :
+        "${var.data_lake_bucket_arn}/${zone}_$folder$"
+      ]
     }
   }
 }
