@@ -84,7 +84,9 @@ module "iam" {
 module "governance" {
   source = "../../modules/governance"
 
-  catalog_name_prefix       = var.project_name
+  # Catalog databases are named music_<zone> to match the Glue job
+  # --catalog-databases args, the Athena DDL, and the Redshift database.
+  catalog_name_prefix       = "music"
   data_lake_bucket_arn      = module.data_lake.data_lake_bucket_arn
   data_lake_bucket_name     = module.data_lake.data_lake_bucket_name
   glue_role_arn             = module.iam.glue_role_arn
