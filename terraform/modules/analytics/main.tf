@@ -9,6 +9,9 @@ locals {
 resource "aws_athena_workgroup" "analytics" {
   name = "${var.name_prefix}-analytics"
 
+  # Allow terraform destroy to remove the workgroup with its query history.
+  force_destroy = true
+
   configuration {
     enforce_workgroup_configuration    = true
     publish_cloudwatch_metrics_enabled = true

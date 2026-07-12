@@ -123,11 +123,16 @@ resource "aws_kms_alias" "data_lake" {
 resource "aws_s3_bucket" "data_lake" {
   bucket = var.data_lake_bucket_name
 
+  # Dev buckets are rebuildable; allow terraform destroy to empty them.
+  force_destroy = true
+
   tags = merge(var.tags, { Name = var.data_lake_bucket_name })
 }
 
 resource "aws_s3_bucket" "glue_assets" {
   bucket = var.glue_assets_bucket_name
+
+  force_destroy = true
 
   tags = merge(var.tags, { Name = var.glue_assets_bucket_name })
 }
