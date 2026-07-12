@@ -135,7 +135,9 @@ resource "aws_glue_job" "raw_to_clean" {
     "--run-id"                  = "scheduled"
     "--ingest-date"             = "1970-01-01"
   })
-  execution_property { max_concurrent_runs = 1 }
+  # Raw-to-clean is driven by both batch manifests (via Lambda) and streaming
+  # backfills, which can overlap; allow a few concurrent runs.
+  execution_property { max_concurrent_runs = 3 }
   tags = var.tags
 }
 
