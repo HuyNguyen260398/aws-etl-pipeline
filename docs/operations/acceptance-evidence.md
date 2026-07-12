@@ -20,6 +20,14 @@ Deploy the dev stack first. Export the runner’s required values: `AWS_REGION`,
 - `sql/redshift/003_dashboard_views.sql`: statement `331e35fd-7159-4f89-b134-ba016d7a77d5`, status `FINISHED`, error `null`.
 - `sql/redshift/002_merge_fact_stream.sql` was intentionally not run: it requires deployed analytics Parquet input and the approved runtime substitution of the bucket and Redshift-role values.
 
+## Step 3 acceptance-environment preflight
+
+- Region: `ap-southeast-1`; data-lake bucket: `music-etl-dev-datalake-010382427026-ap-southeast-1`.
+- Athena workgroup and Redshift Serverless workgroup: `music-etl-dev-analytics`.
+- Kinesis stream: `music-etl-dev-events`; raw-to-clean Glue job: `music-etl-dev-raw-to-clean`.
+- The analytics-reader role assumption succeeded as `arn:aws:sts::010382427026:assumed-role/music-etl-dev-analytics-reader/acceptance-preflight`.
+- The Redshift administrator secret ARN is supplied only at runtime and is not recorded here.
+
 ## Functional evidence
 
 Record the acceptance run timestamp, Git commit, raw object keys, Glue run IDs, clean/analytics Parquet keys, Athena query execution IDs/results, and Redshift Data API statement IDs/results. Capture the invalid-record quarantine key and the Kinesis sequence number.
