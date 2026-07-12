@@ -38,6 +38,22 @@ data "aws_iam_policy_document" "kms" {
       values   = ["arn:aws:logs:ap-southeast-1:${data.aws_caller_identity.current.account_id}:log-group:*"]
     }
   }
+
+  # The data lake is registered with Lake Formation using its service-linked
+  # role. LF-integrated engines (e.g. Athena) read data through that role, so
+  # it must be able to decrypt SSE-KMS objects in the lake.
+  statement {
+    sid    = "AllowLakeFormationDataAccessDecrypt"
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/lakeformation.amazonaws.com/AWSServiceRoleForLakeFormationDataAccess"]
+    }
+
+    actions   = ["kms:Decrypt", "kms:DescribeKey"]
+    resources = ["*"]
+  }
 }
 
 data "aws_iam_policy_document" "data_lake_tls" {
