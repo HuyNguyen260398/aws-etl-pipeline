@@ -116,6 +116,11 @@ locals {
   lambda_dlq_arn              = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${var.name_prefix}-manifest-dlq"
   lambda_glue_job_arn         = "arn:aws:glue:${var.aws_region}:${data.aws_caller_identity.current.account_id}:job/${var.name_prefix}-raw-to-clean"
   lambda_log_group_arn        = "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.name_prefix}-manifest-validator"
+
+  athena_workgroup_arn   = "arn:aws:athena:${var.aws_region}:${data.aws_caller_identity.current.account_id}:workgroup/${var.name_prefix}-analytics"
+  glue_catalog_arn       = "arn:aws:glue:${var.aws_region}:${data.aws_caller_identity.current.account_id}:catalog"
+  analytics_database_arn = "arn:aws:glue:${var.aws_region}:${data.aws_caller_identity.current.account_id}:database/music_analytics"
+  analytics_tables_arn   = "arn:aws:glue:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/music_analytics/*"
 }
 
 data "aws_iam_policy_document" "data_lake_access" {
@@ -216,6 +221,62 @@ data "aws_iam_policy_document" "data_lake_access" {
         for zone in ["clean", "analytics", "quarantine"] :
         "${var.data_lake_bucket_arn}/${zone}_$folder$"
       ]
+    }
+  }
+
+  # The analytics reader queries the analytics zone through Athena. Data
+  # authorization is governed by Lake Formation (SELECT on analytics only,
+  # nothing on raw); these statements grant the matching API access. Glue
+  # catalog access is scoped to the analytics database so raw stays denied.
+  dynamic "statement" {
+    for_each = each.key == "analytics_reader" ? [true] : []
+
+    content {
+      effect = "Allow"
+      actions = [
+        "athena:StartQueryExecution",
+        "athena:StopQueryExecution",
+        "athena:GetQueryExecution",
+        "athena:GetQueryResults",
+        "athena:GetWorkGroup",
+      ]
+      resources = [local.athena_workgroup_arn]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = each.key == "analytics_reader" ? [true] : []
+
+    content {
+      effect    = "Allow"
+      actions   = ["s3:GetObject", "s3:PutObject"]
+      resources = ["${var.data_lake_bucket_arn}/athena-results/*"]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = each.key == "analytics_reader" ? [true] : []
+
+    content {
+      effect = "Allow"
+      actions = [
+        "glue:GetDatabase",
+        "glue:GetTable",
+        "glue:GetTables",
+        "glue:GetPartition",
+        "glue:GetPartitions",
+      ]
+      resources = [local.glue_catalog_arn, local.analytics_database_arn, local.analytics_tables_arn]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = each.key == "analytics_reader" ? [true] : []
+
+    content {
+      effect    = "Allow"
+      actions   = ["lakeformation:GetDataAccess"]
+      resources = ["*"]
     }
   }
 }
