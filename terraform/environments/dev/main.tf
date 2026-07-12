@@ -51,7 +51,7 @@ module "network" {
   s3_endpoint_allowed_principal_arns = var.s3_endpoint_allowed_principal_arns
   enable_nat_gateway                 = var.enable_nat_gateway
   flow_log_retention_days            = var.flow_log_retention_days
-  flow_log_kms_key_id                = var.flow_log_kms_key_id
+  flow_log_kms_key_id                = module.data_lake.data_lake_kms_key_arn
   tags                               = module.common.tags
 }
 

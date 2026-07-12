@@ -90,12 +90,6 @@ variable "flow_log_retention_days" {
   default     = 30
 }
 
-variable "flow_log_kms_key_id" {
-  description = "KMS key ID or ARN used to encrypt VPC flow logs."
-  type        = string
-  default     = "alias/aws/logs"
-}
-
 variable "data_lake_bucket_name" {
   description = "Globally unique S3 bucket name for raw, clean, analytics, quarantine, and Athena result prefixes."
   type        = string
