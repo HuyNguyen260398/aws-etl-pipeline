@@ -9,7 +9,9 @@ from pyspark.sql import functions as F
 
 
 def write_parquet(dataframe, path: str) -> None:
-    dataframe.write.mode("append").option("compression", "snappy").parquet(path)
+    # Overwrite: the job rebuilds each analytics dataset from the full clean
+    # zone on every run, so appending would accumulate duplicates.
+    dataframe.write.mode("overwrite").option("compression", "snappy").parquet(path)
 
 
 def resolve_argument(arguments: list[str], name: str) -> str:
@@ -41,7 +43,7 @@ def main() -> None:
 
     fact_stream = enriched_events.select(
         "event_id", "user_id", "track_id", "artist_id", "played_at", "duration_seconds", "platform", "ingest_date"
-    )
+    ).dropDuplicates(["event_id"])
     dim_artist = enriched_events.select("artist_id", "artist_name").dropDuplicates(["artist_id"])
     dim_track = enriched_events.select("track_id", "artist_id").dropDuplicates(["track_id"])
     daily_listening_metrics = enriched_events.groupBy("ingest_date", "platform").agg(
