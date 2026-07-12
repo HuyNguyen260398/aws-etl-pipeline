@@ -5,9 +5,9 @@ CREATE EXTERNAL TABLE IF NOT EXISTS music_analytics.fact_stream (
     artist_id string,
     played_at timestamp,
     duration_seconds int,
-    platform string
+    platform string,
+    ingest_date date
 )
-PARTITIONED BY (ingest_date date)
 STORED AS PARQUET
 LOCATION 's3://REPLACE_WITH_DATA_LAKE_BUCKET/analytics/fact_stream/'
 TBLPROPERTIES ('parquet.compression' = 'SNAPPY');
@@ -32,9 +32,9 @@ CREATE EXTERNAL TABLE IF NOT EXISTS music_analytics.daily_listening_metrics (
     platform string,
     event_count bigint,
     unique_listener_count bigint,
-    listening_seconds bigint
+    listening_seconds bigint,
+    ingest_date date
 )
-PARTITIONED BY (ingest_date date)
 STORED AS PARQUET
 LOCATION 's3://REPLACE_WITH_DATA_LAKE_BUCKET/analytics/daily_listening_metrics/'
 TBLPROPERTIES ('parquet.compression' = 'SNAPPY');

@@ -7,9 +7,9 @@ FROM 's3://REPLACE_WITH_DATA_LAKE_BUCKET/analytics/fact_stream/'
 IAM_ROLE 'REPLACE_WITH_REDSHIFT_ROLE_ARN'
 FORMAT AS PARQUET;
 
-MERGE INTO analytics.fact_stream AS target_record
-USING analytics.stg_fact_stream AS source_record
-    ON target_record.event_id = source_record.event_id
+MERGE INTO analytics.fact_stream
+USING analytics.stg_fact_stream source_record
+    ON analytics.fact_stream.event_id = source_record.event_id
 WHEN MATCHED THEN
     UPDATE SET
         user_id = source_record.user_id,

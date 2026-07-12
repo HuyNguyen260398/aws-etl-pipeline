@@ -31,6 +31,12 @@ def main() -> None:
     job.init(job_name, {})
 
     clean_events = spark.read.parquet(clean_prefix)
+    # Emit the canonical analytics types so the Parquet matches the Athena
+    # tables and the Redshift schema: duration_seconds is an integer and
+    # ingest_date is a date, not the string carried through the clean zone.
+    clean_events = clean_events.withColumn("duration_seconds", F.col("duration_seconds").cast("int")).withColumn(
+        "ingest_date", F.to_date(F.col("ingest_date"))
+    )
     enriched_events = clean_events.withColumn("artist_id", F.sha2(F.col("artist_name"), 256))
 
     fact_stream = enriched_events.select(
