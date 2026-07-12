@@ -258,6 +258,17 @@ data "aws_iam_policy_document" "data_lake_access" {
     for_each = each.key == "analytics_reader" ? [true] : []
 
     content {
+      # Athena verifies the workgroup result bucket before running a query.
+      effect    = "Allow"
+      actions   = ["s3:GetBucketLocation"]
+      resources = [var.data_lake_bucket_arn]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = each.key == "analytics_reader" ? [true] : []
+
+    content {
       effect = "Allow"
       actions = [
         "glue:GetDatabase",
