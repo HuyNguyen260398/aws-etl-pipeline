@@ -158,8 +158,14 @@ data "aws_iam_policy_document" "data_lake_access" {
     for_each = each.key == "firehose" ? [true] : []
 
     content {
-      effect    = "Allow"
-      actions   = ["kinesis:DescribeStream"]
+      effect = "Allow"
+      # Firehose with a Kinesis stream source must read the stream, not just describe it.
+      actions = [
+        "kinesis:DescribeStream",
+        "kinesis:GetShardIterator",
+        "kinesis:GetRecords",
+        "kinesis:ListShards",
+      ]
       resources = [local.firehose_kinesis_stream_arn]
     }
   }
