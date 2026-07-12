@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A cost-conscious AWS data platform (Terraform + Python + SQL) for the "Music Streaming Habits 2026" dataset. Exactly one low-cost `dev` environment is deployed, in `ap-southeast-1`. Infrastructure is Terraform; ETL is Lambda + Glue (PySpark); analytics is Athena + Redshift Serverless; dashboards are QuickSight (opt-in). CI/CD is GitHub Actions via OIDC.
+A cost-conscious AWS data platform (Terraform + Python + SQL) for the "Music Streaming Habits 2026" dataset. Exactly one low-cost `dev` environment is deployed, in `ap-southeast-1`. Infrastructure is Terraform; ETL is Lambda + Glue (PySpark); analytics is Athena + Redshift Serverless; dashboards are QuickSight (opt-in). Terraform is applied locally against an S3 remote-state backend.
 
 `plan/infrastructure-aws-etl-1.md` is the approved, ordered implementation plan. `docs/superpowers/specs/2026-07-10-music-streaming-etl-design.md` holds the architecture rationale. Follow the plan sequentially unless a user instruction changes scope, and make exactly one conventional Git commit per completed plan task.
 
@@ -25,7 +25,7 @@ Invariants to preserve: raw data is immutable; invalid records go to `quarantine
 
 The Lambda and Glue quality-library `.zip` files are **built by Terraform** (`archive_file` data sources in the `streaming` and `glue` modules) from `src/` — do not hand-create or commit them (`quality-library.zip`, `validator.zip` are generated artifacts).
 
-Backend config cannot use variables: pass remote state via `terraform init -backend-config=...` (bucket, dynamodb_table, key, region), as the deploy workflow does.
+Backend config cannot use variables: pass remote state via `terraform init -backend-config=...` (bucket, dynamodb_table, key, region).
 
 ## Commands
 
@@ -48,7 +48,7 @@ tflint --chdir=terraform/environments/dev
 checkov -d terraform --quiet --framework terraform
 ```
 
-Other gates: **SQLFluff** for SQL (`sql/*/.sqlfluff` pin dialects — redshift, athena), **actionlint** for workflow changes, and `pre-commit run --all-files` (fmt, validate, checkov, yaml/json/whitespace).
+Other gates: **SQLFluff** for SQL (`sql/*/.sqlfluff` pin dialects — redshift, athena) and `pre-commit run --all-files` (fmt, validate, checkov, yaml/json/whitespace).
 
 ## Conventions
 

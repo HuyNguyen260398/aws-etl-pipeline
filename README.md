@@ -1,6 +1,6 @@
 # AWS ETL Pipeline — Music Streaming Habits 2026
 
-A production-oriented, cost-conscious AWS data platform for analyzing Music Streaming Habits 2026. The project uses Terraform to deploy one `dev` environment in `ap-southeast-1` and GitHub Actions to validate and deploy infrastructure.
+A production-oriented, cost-conscious AWS data platform for analyzing Music Streaming Habits 2026. The project uses Terraform to deploy one `dev` environment in `ap-southeast-1`.
 
 ## Architecture
 
@@ -27,7 +27,7 @@ Lake Formation governs catalog and data access. CloudWatch provides logs, metric
 - Amazon Athena and Amazon Redshift Serverless for analytics
 - Amazon QuickSight for dashboards (opt-in to control cost)
 - Amazon VPC, S3 Gateway VPC endpoint, AWS KMS, AWS Secrets Manager, and Amazon CloudWatch
-- Terraform and GitHub Actions for infrastructure and CI/CD
+- Terraform for infrastructure as code
 
 ## Repository layout
 
@@ -47,12 +47,12 @@ plan/         Approved implementation plan
 - AWS CLI v2 authenticated through a profile or assumed role
 - Python 3.11 or later
 - Git
-- Optional local quality tools: TFLint, Checkov, actionlint, SQLFluff, and pytest
+- Optional local quality tools: TFLint, Checkov, SQLFluff, and pytest
 - Kaggle API credentials only when downloading the source dataset
 
 ## Configuration
 
-No AWS credentials, account IDs, secrets, or environment-specific values belong in source control. Configure Terraform through input variables and CI/CD through GitHub environment secrets and variables.
+No AWS credentials, account IDs, secrets, or environment-specific values belong in source control. Configure Terraform through input variables and an ignored `terraform.tfvars`.
 
 Supply the remote-state bucket, lock table, state key, and region as `terraform init -backend-config` arguments (or an ignored backend configuration file); Terraform backend blocks cannot reference input variables.
 

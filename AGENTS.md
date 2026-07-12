@@ -7,8 +7,8 @@ This repository builds a production-oriented AWS ETL data pipeline for Music Str
 ## Engineering requirements
 
 - Implement the approved plan in `plan/infrastructure-aws-etl-1.md` sequentially unless a later user instruction changes scope.
-- Target one `dev` environment in `ap-southeast-1`; keep region, credentials, account-specific values, resource sizing, CIDRs, and notification endpoints configurable through Terraform variables or CI/CD secrets.
-- Preserve the requested services: S3, Kinesis Data Streams, Glue, Lambda, Athena, Redshift, QuickSight, Lake Formation, CloudWatch, VPC, S3 VPC endpoint, Terraform, and GitHub Actions.
+- Target one `dev` environment in `ap-southeast-1`; keep region, credentials, account-specific values, resource sizing, CIDRs, and notification endpoints configurable through Terraform variables.
+- Preserve the requested services: S3, Kinesis Data Streams, Glue, Lambda, Athena, Redshift, QuickSight, Lake Formation, CloudWatch, VPC, S3 VPC endpoint, and Terraform.
 - Prefer the lowest-cost safe development configuration. Keep NAT Gateway disabled by default and use the S3 Gateway VPC endpoint.
 - Do not commit credentials, state files, generated data, downloaded Kaggle files, private tfvars, or environment files.
 - Use least-privilege IAM, KMS encryption, S3 public-access blocks, Lake Formation grants, Secrets Manager, and GitHub OIDC.
@@ -19,6 +19,6 @@ This repository builds a production-oriented AWS ETL data pipeline for Music Str
 ## Quality gates
 
 - Run `terraform fmt -check -recursive`, `terraform validate`, TFLint, and Checkov for Terraform changes.
-- Run pytest for Python changes, SQLFluff for SQL changes, and actionlint for GitHub Actions changes.
+- Run pytest for Python changes and SQLFluff for SQL changes.
 - Do not claim deployment success without command output or AWS evidence.
 - Update documentation whenever architecture, configuration variables, runbooks, or data contracts change.
