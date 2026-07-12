@@ -162,3 +162,25 @@ resource "aws_glue_job" "clean_to_analytics" {
   execution_property { max_concurrent_runs = 1 }
   tags = var.tags
 }
+
+# Chain clean-to-analytics after every successful raw-to-clean run so the
+# analytics zone is populated without manual orchestration.
+resource "aws_glue_trigger" "clean_after_raw" {
+  name              = "${var.name_prefix}-clean-after-raw"
+  type              = "CONDITIONAL"
+  start_on_creation = true
+
+  actions {
+    job_name = aws_glue_job.clean_to_analytics.name
+  }
+
+  predicate {
+    conditions {
+      job_name         = aws_glue_job.raw_to_clean.name
+      state            = "SUCCEEDED"
+      logical_operator = "EQUALS"
+    }
+  }
+
+  tags = var.tags
+}
