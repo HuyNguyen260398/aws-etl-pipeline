@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A cost-conscious AWS data platform (Terraform + Python + SQL) for the "Music Streaming Habits 2026" dataset. Exactly one low-cost `dev` environment is deployed, in `ap-southeast-1`. Infrastructure is Terraform; ETL is Lambda + Glue (PySpark); analytics is Athena + Redshift Serverless; dashboards are QuickSight (opt-in). Terraform is applied locally against an S3 remote-state backend.
 
-`plan/infrastructure-aws-etl-1.md` is the approved, ordered implementation plan. `docs/superpowers/specs/2026-07-10-music-streaming-etl-design.md` holds the architecture rationale. Follow the plan sequentially unless a user instruction changes scope, and make exactly one conventional Git commit per completed plan task.
+`docs/superpowers/plan/infrastructure-aws-etl-1.md` is the approved, ordered implementation plan. `docs/superpowers/specs/2026-07-10-music-streaming-etl-design.md` holds the architecture rationale. Follow the plan sequentially unless a user instruction changes scope, and make exactly one conventional Git commit per completed plan task.
 
 ## Architecture
 

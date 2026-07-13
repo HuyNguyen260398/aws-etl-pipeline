@@ -6,7 +6,7 @@ This repository builds a production-oriented AWS ETL data pipeline for Music Str
 
 ## Engineering requirements
 
-- Implement the approved plan in `plan/infrastructure-aws-etl-1.md` sequentially unless a later user instruction changes scope.
+- Implement the approved plan in `docs/superpowers/plan/infrastructure-aws-etl-1.md` sequentially unless a later user instruction changes scope.
 - Target one `dev` environment in `ap-southeast-1`; keep region, credentials, account-specific values, resource sizing, CIDRs, and notification endpoints configurable through Terraform variables.
 - Preserve the requested services: S3, Kinesis Data Streams, Glue, Lambda, Athena, Redshift, QuickSight, Lake Formation, CloudWatch, VPC, S3 VPC endpoint, and Terraform.
 - Prefer the lowest-cost safe development configuration. Keep NAT Gateway disabled by default and use the S3 Gateway VPC endpoint.
