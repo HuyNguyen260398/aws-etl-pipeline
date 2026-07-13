@@ -15,7 +15,7 @@ flowchart LR
     subgraph ingest["Ingestion"]
         PROD["Event producers"]
         KDS["Kinesis Data Streams<br/>music-etl-dev-events"]
-        FH["Kinesis Firehose<br/>music-etl-dev-raw-delivery"]
+        FH["Amazon Data Firehose<br/>music-etl-dev-raw-delivery"]
         BATCH["Batch source<br/>Kaggle files + manifest.json"]
     end
 
@@ -117,7 +117,7 @@ sequenceDiagram
     autonumber
     participant PR as Producer
     participant KDS as Kinesis
-    participant FH as Firehose
+    participant FH as Data Firehose
     participant S3 as S3 data lake
     participant VAL as Validator Lambda
     participant DLQ as SQS DLQ
@@ -181,7 +181,7 @@ flowchart TD
 
     %% Streaming path
     ING -->|Streaming| KDS["Publish to Kinesis Data Streams"]
-    KDS --> FHD["Firehose buffers + GZIP"]
+    KDS --> FHD["Data Firehose buffers + GZIP"]
     FHD --> RAWK["Write to raw/source=kinesis/"]
     RAWK --> RAWZONE
 
@@ -236,9 +236,9 @@ flowchart TD
 - **Dotted arrows** — an event/trigger or a governance/monitoring relationship.
 - **Diamonds** (flow diagram) — decision points; red nodes are fault paths
   (`quarantine/`, DLQ, alarm) that never mutate `raw/`.
-- **quarantine/** receives both record-level rejections (from Glue) and Firehose
+- **quarantine/** receives both record-level rejections (from Glue) and Data Firehose
   delivery errors; raw data is never mutated.
-- Streaming (Kinesis → Firehose) and batch (manifest → validator) are independent
+- Streaming (Kinesis → Data Firehose) and batch (manifest → validator) are independent
   ingestion paths that converge in `raw/` and share the same downstream Glue jobs.
 - QuickSight is opt-in (`quicksight_enabled = false` by default); the rest of the
   stack is always deployed.
