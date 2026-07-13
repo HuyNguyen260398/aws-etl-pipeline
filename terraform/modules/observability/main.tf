@@ -218,9 +218,9 @@ resource "aws_cloudwatch_dashboard" "pipeline" {
   dashboard_name = "${var.name_prefix}-pipeline"
   dashboard_body = jsonencode({
     widgets = [
-      { type = "metric", properties = { title = "Lambda Errors and Throttles", view = "timeSeries", region = "ap-southeast-1", metrics = [["AWS/Lambda", "Errors", "FunctionName", var.lambda_function_name], [".", "Throttles", ".", "."]] } },
-      { type = "metric", properties = { title = "Kinesis and Firehose", view = "timeSeries", region = "ap-southeast-1", metrics = [["AWS/Kinesis", "GetRecords.IteratorAgeMilliseconds", "StreamName", var.kinesis_stream_name], ["AWS/Firehose", "DeliveryToS3.Success", "DeliveryStreamName", var.firehose_delivery_stream_name]] } },
-      { type = "metric", properties = { title = "DLQ and Athena", view = "timeSeries", region = "ap-southeast-1", metrics = [["AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", var.dlq_name], ["AWS/Athena", "ProcessedBytes", "WorkGroup", var.athena_workgroup_name]] } },
+      { type = "metric", properties = { title = "Lambda Errors and Throttles", view = "timeSeries", region = var.aws_region, metrics = [["AWS/Lambda", "Errors", "FunctionName", var.lambda_function_name], [".", "Throttles", ".", "."]] } },
+      { type = "metric", properties = { title = "Kinesis and Firehose", view = "timeSeries", region = var.aws_region, metrics = [["AWS/Kinesis", "GetRecords.IteratorAgeMilliseconds", "StreamName", var.kinesis_stream_name], ["AWS/Firehose", "DeliveryToS3.Success", "DeliveryStreamName", var.firehose_delivery_stream_name]] } },
+      { type = "metric", properties = { title = "DLQ and Athena", view = "timeSeries", region = var.aws_region, metrics = [["AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", var.dlq_name], ["AWS/Athena", "ProcessedBytes", "WorkGroup", var.athena_workgroup_name]] } },
     ]
   })
 }

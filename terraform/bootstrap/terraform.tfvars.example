@@ -7,5 +7,5 @@ state_noncurrent_version_expiration_days = 90
 
 common_tags = {
   CostCenter = "development"
-  Owner      = "huy"
+  Owner      = "replace-with-owner"
 }

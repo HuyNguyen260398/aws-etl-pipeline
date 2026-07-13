@@ -49,5 +49,5 @@ quicksight_refresh_schedule = "DAILY"
 
 common_tags = {
   CostCenter = "development"
-  Owner      = "huy"
+  Owner      = "replace-with-owner"
 }

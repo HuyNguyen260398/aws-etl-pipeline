@@ -1,5 +1,9 @@
 variable "name_prefix" { type = string }
 variable "tags" { type = map(string) }
+variable "aws_region" {
+  type        = string
+  description = "AWS region whose metrics the CloudWatch dashboard widgets display."
+}
 variable "kms_key_arn" { type = string }
 variable "log_retention_days" { type = number }
 variable "alarm_sns_topic_arn" {

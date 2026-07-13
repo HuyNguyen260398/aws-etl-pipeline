@@ -20,7 +20,7 @@ data "aws_iam_policy_document" "kms" {
 
     principals {
       type        = "Service"
-      identifiers = ["logs.ap-southeast-1.amazonaws.com"]
+      identifiers = ["logs.${var.aws_region}.amazonaws.com"]
     }
 
     actions = [
@@ -35,7 +35,7 @@ data "aws_iam_policy_document" "kms" {
     condition {
       test     = "ArnLike"
       variable = "kms:EncryptionContext:aws:logs:arn"
-      values   = ["arn:aws:logs:ap-southeast-1:${data.aws_caller_identity.current.account_id}:log-group:*"]
+      values   = ["arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:*"]
     }
   }
 

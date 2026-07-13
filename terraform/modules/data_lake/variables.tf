@@ -1,6 +1,10 @@
 variable "data_lake_bucket_name" { type = string }
 variable "glue_assets_bucket_name" { type = string }
 variable "kms_alias_prefix" { type = string }
+variable "aws_region" {
+  type        = string
+  description = "AWS region of the deployment; used to scope the CloudWatch Logs KMS grant."
+}
 variable "tags" { type = map(string) }
 
 variable "raw_retention_days" {

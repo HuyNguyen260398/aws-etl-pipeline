@@ -1,5 +1,9 @@
 # Acceptance evidence
 
+> This document is a **sample evidence record** from one reference run. Account
+> IDs (`111122223333`), ARNs, bucket names, statement IDs, and timestamps are
+> illustrative — replace them with the values captured from your own deployment.
+
 ## Preconditions
 
 Deploy the dev stack first. Export the runner’s required values: `AWS_REGION`, `DATA_LAKE_BUCKET`, `ATHENA_WORKGROUP`, `REDSHIFT_WORKGROUP`, and `TEST_ROLE_ARN`. The integration tests additionally require `KINESIS_STREAM_NAME`, `GLUE_RAW_TO_CLEAN_JOB_NAME`, and `REDSHIFT_SECRET_ARN`.
@@ -8,7 +12,7 @@ Deploy the dev stack first. Export the runner’s required values: `AWS_REGION`,
 
 - Deployment completed: `2026-07-11T23:47:26Z`
 - Terraform source baseline: `e1485459c68faa18aedc19459ef559b7b7c19ec6`
-- AWS account and region: `010382427026`, `ap-southeast-1`
+- AWS account and region: `111122223333`, `ap-southeast-1`
 - Final reconciliation: `terraform plan -detailed-exitcode` returned `No changes.`
 - Apply result: the final reconciliation added 18 resources, updated the data-lake KMS policy, and destroyed no resources.
 - Remediation recorded in this checkpoint: single-owner Glue-to-Redshift egress, scoped Firehose Kinesis read access, scoped Lambda DLQ send access, Lake Formation catalog-admin bootstrap, and scoped CloudWatch Logs KMS access.
@@ -22,16 +26,16 @@ Deploy the dev stack first. Export the runner’s required values: `AWS_REGION`,
 
 ## Step 3 acceptance-environment preflight
 
-- Region: `ap-southeast-1`; data-lake bucket: `music-etl-dev-datalake-010382427026-ap-southeast-1`.
+- Region: `ap-southeast-1`; data-lake bucket: `music-etl-dev-datalake-111122223333-ap-southeast-1`.
 - Athena workgroup and Redshift Serverless workgroup: `music-etl-dev-analytics`.
 - Kinesis stream: `music-etl-dev-events`; raw-to-clean Glue job: `music-etl-dev-raw-to-clean`.
-- The analytics-reader role assumption succeeded as `arn:aws:sts::010382427026:assumed-role/music-etl-dev-analytics-reader/acceptance-preflight`.
+- The analytics-reader role assumption succeeded as `arn:aws:sts::111122223333:assumed-role/music-etl-dev-analytics-reader/acceptance-preflight`.
 - The Redshift administrator secret ARN is supplied only at runtime and is not recorded here.
 
 ## Step 4 acceptance run
 
 - Result: `tests/e2e/test_pipeline.py -m integration` — **6 passed in 234.77s**.
-- Run completed: `2026-07-12T07:12Z` (`ap-southeast-1`, account `010382427026`).
+- Run completed: `2026-07-12T07:12Z` (`ap-southeast-1`, account `111122223333`).
 - Pipeline code under test: commit `1c08fd4` (final fix); documentation HEAD `873f181` (docs-only delta).
 - Tests: batch ingestion, Kinesis ingestion, clean/analytics Parquet presence, Athena+Redshift merged-event visibility, invalid-record quarantine, analytics-reader raw denial.
 
@@ -54,13 +58,13 @@ Deploy the dev stack first. Export the runner’s required values: `AWS_REGION`,
 
 ## Permission evidence
 
-- Analytics-reader assumed role: `arn:aws:sts::010382427026:assumed-role/music-etl-dev-analytics-reader/acceptance-evidence`.
+- Analytics-reader assumed role: `arn:aws:sts::111122223333:assumed-role/music-etl-dev-analytics-reader/acceptance-evidence`.
 - Attempted raw-zone query: Athena execution `011b6f3a-3fc9-4d3f-ba7b-f2c9af82194c`, `SELECT COUNT(*) FROM music_raw.events` → **FAILED**.
 - Denial reason: `not authorized to perform: glue:GetDatabase on resource: .../database/music_raw` — the reader's Glue/Lake Formation grants are scoped to `music_analytics` only, so raw remains inaccessible. No secret or session credentials recorded.
 
 ## Cost and operational evidence
 
-- Resource tags (S3 lake, Glue jobs, Redshift workgroup, Athena workgroup): `Project=music-etl`, `Environment=dev`, `Region=ap-southeast-1`, `Owner=huy`, `ManagedBy=Terraform`, `CostCenter=development`.
+- Resource tags (S3 lake, Glue jobs, Redshift workgroup, Athena workgroup): `Project=music-etl`, `Environment=dev`, `Region=ap-southeast-1`, `Owner=<owner>`, `ManagedBy=Terraform`, `CostCenter=development`.
 - CloudWatch alarms — all `OK` before and after the run: `athena-bytes-scanned`, `dlq-depth`, `firehose-delivery-failure`, `glue-failed`, `glue-timeout`, `kinesis-iterator-age`, `lambda-errors`, `lambda-throttles`, `redshift-capacity`, `redshift-errors`.
 - `terraform plan` after the run: **No changes** (deployed stack matches the committed configuration; no drift).
 

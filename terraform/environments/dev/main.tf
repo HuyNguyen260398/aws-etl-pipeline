@@ -61,6 +61,7 @@ module "data_lake" {
   data_lake_bucket_name      = var.data_lake_bucket_name
   glue_assets_bucket_name    = var.glue_assets_bucket_name
   kms_alias_prefix           = var.kms_alias_prefix
+  aws_region                 = var.aws_region
   raw_retention_days         = var.raw_retention_days
   clean_retention_days       = var.clean_retention_days
   analytics_retention_days   = var.analytics_retention_days
@@ -148,6 +149,7 @@ module "observability" {
 
   name_prefix                   = module.common.name_prefix
   tags                          = module.common.tags
+  aws_region                    = var.aws_region
   kms_key_arn                   = module.data_lake.data_lake_kms_key_arn
   log_retention_days            = var.glue_log_retention_days
   alarm_sns_topic_arn           = var.alarm_sns_topic_arn
