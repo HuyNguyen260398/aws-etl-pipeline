@@ -1,5 +1,12 @@
 # AWS ETL Pipeline — Reference Architecture
 
+[![Terraform](https://img.shields.io/badge/Terraform-%E2%89%A5%201.7-7B42BC?logo=terraform&logoColor=white)](https://developer.hashicorp.com/terraform)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![AWS](https://img.shields.io/badge/AWS-Serverless-232F3E?logo=amazonwebservices&logoColor=white)](https://aws.amazon.com/)
+[![AWS Glue](https://img.shields.io/badge/AWS%20Glue-PySpark%204.0-E25A1C?logo=apachespark&logoColor=white)](https://aws.amazon.com/glue/)
+[![Analytics](https://img.shields.io/badge/Analytics-Athena%20%C2%B7%20Redshift-FF9900?logo=amazonredshift&logoColor=white)](https://aws.amazon.com/redshift/serverless/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 A production-oriented, cost-conscious **AWS data-platform reference architecture**,
 built with Terraform, Python, and SQL. It ingests batch and streaming data,
 processes it through a raw → clean → analytics data lake, and serves it via
@@ -11,21 +18,26 @@ with your own values, and deployed into any AWS account**. No account IDs,
 ARNs, bucket names, regions, or secrets are hardcoded; every environment-specific
 value is a Terraform input variable.
 
+## Contents
+
+- [Architecture](#architecture)
+- [What gets deployed](#what-gets-deployed)
+- [Repository layout](#repository-layout)
+- [Cost note](#cost-note)
+- [Prerequisites](#prerequisites)
+- [Setup](#setup)
+- [Testing](#testing)
+- [Teardown](#teardown)
+- [Documentation](#documentation)
+
 ## Architecture
 
-```text
-Kaggle snapshot ──┐
-                  ├──> S3 raw zone ──> Lambda validator ──> AWS Glue (raw→clean)
-Streaming events ─┴──> Kinesis ──> Firehose ──> raw/            │  (EventBridge)
-                                                                 ▼
-                                                    AWS Glue (clean→analytics)
-                                                                 │
-                                       ┌─────────── S3 analytics zone (Parquet)
-                                       │                         │
-                                    Athena              Redshift Serverless
-                                       │                         │
-                                       └──────> QuickSight <──────┘
-```
+![AWS ETL Pipeline reference architecture: batch and streaming ingestion land in an S3 raw zone, Lambda + AWS Glue drive the raw → clean → analytics flow, and the analytics zone is served through Athena, Redshift Serverless, and opt-in QuickSight — all inside a single VPC with IAM, KMS, Secrets Manager, Lake Formation, CloudWatch, and an SQS DLQ as cross-cutting concerns.](docs/architecture/aws-etl-pipeline.png)
+
+> [!NOTE]
+> The image is exported from [`docs/architecture/aws-etl-pipeline.drawio`](docs/architecture/aws-etl-pipeline.drawio).
+> Re-render it after edits with
+> `drawio -x -f png --scale 2 --border 10 -o docs/architecture/aws-etl-pipeline.png docs/architecture/aws-etl-pipeline.drawio`.
 
 Lake Formation governs catalog and data access; an analytics-reader role can
 query `analytics` only and is denied `raw`. CloudWatch provides logs, metrics,
@@ -40,7 +52,7 @@ Detailed component, sequence, and flow diagrams live in
 - **Amazon S3** data lake — `raw`, `clean`, `analytics`, `quarantine`, and
   `athena-results` zones, plus a separate Glue-assets bucket (KMS-encrypted,
   versioned, TLS-only)
-- **Amazon Kinesis Data Streams** + **Kinesis Firehose** for streaming ingestion
+- **Amazon Kinesis Data Streams** + **Amazon Data Firehose** for streaming ingestion
 - **AWS Lambda** (manifest validation, Glue orchestration) and **AWS Glue**
   (PySpark ETL with a shared data-quality library)
 - **AWS Glue Data Catalog** + **AWS Lake Formation** for metadata and governance
@@ -52,15 +64,28 @@ Detailed component, sequence, and flow diagrams live in
 ## Repository layout
 
 ```text
-terraform/
-  bootstrap/           One-time remote-state bucket + DynamoDB lock table
-  environments/dev/    The environment composition + variables + outputs
-  modules/             Reusable, environment-agnostic modules
-src/                    Lambda, Glue, and data-contract source code
-sql/                    Athena and Redshift DDL, merge, and dashboard SQL
-tests/                  Unit, contract, and end-to-end (integration) tests
-scripts/                Dataset download, event generation, schema seed, acceptance
-docs/                   Architecture, security, operations, and data contracts
+aws-etl-pipeline/
+├── terraform/                # Infrastructure as code (HCL)
+│   ├── bootstrap/            # One-time remote-state bucket + DynamoDB lock table
+│   ├── environments/dev/     # Env composition: main.tf, variables.tf, outputs.tf
+│   └── modules/              # Reusable, environment-agnostic modules, composed in order:
+│                             #   common → network → data_lake → iam → governance →
+│                             #   streaming → glue → analytics → observability → quicksight
+├── src/                      # Application source code
+│   ├── lambda/
+│   │   ├── validator/        # Manifest validator — triggers the raw-to-clean job
+│   │   └── orchestrator/     # Chains clean-to-analytics on Glue SUCCEEDED
+│   ├── glue/
+│   │   ├── jobs/             # PySpark ETL: raw_to_clean.py, clean_to_analytics.py
+│   │   └── lib/              # Shared data-quality library (quality.py)
+│   └── contracts/            # JSON Schema for the music-streaming event
+├── sql/
+│   ├── athena/               # External-table DDL over the analytics zone
+│   └── redshift/             # Schema, idempotent MERGE, dashboard views
+├── tests/                    # pytest: contracts · lambda · glue · sql · terraform · e2e
+├── scripts/                  # Dataset download, event generator, schema seed, acceptance
+├── docs/                     # Architecture, data contracts, security, runbooks, operations, BI
+└── data/sample/              # De-identified sample input (real/downloaded data is gitignored)
 ```
 
 ---
